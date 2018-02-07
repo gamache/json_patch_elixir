@@ -14,6 +14,7 @@ defmodule JSONPatch.MixProject do
 
   defp aliases do
     [
+      docs: "docs --source-url https://github.com/gamache/json_patch_elixir",
       "download-tests": [&download_tests/1]
     ]
   end

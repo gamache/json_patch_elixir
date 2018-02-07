@@ -30,15 +30,13 @@ defmodule JSONPatch.Path do
   ## Returns other inputs unchanged.
   defp convert_number("0"), do: 0
 
-  ## ~ escape handling  -- TODO make sure this is correct
-  defp convert_number("~" <> rest), do: "~#{String.to_integer(rest)}"
-
   defp convert_number(str) do
     # array indices with leading zeros are invalid, so don't convert them
     if String.match?(str, ~r"^[1-9]+[0-9]*$") do
       String.to_integer(str)
     else
-      str
+      # ~ escape handling per RFC 6901
+      str |> String.replace("~1", "/") |> String.replace("~0", "~")
     end
   end
 
