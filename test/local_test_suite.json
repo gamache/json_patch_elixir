@@ -1,0 +1,551 @@
+[
+  {
+    "comment": "add to object, string path",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "add", "path": "/b", "value": 1}
+    ],
+    "expected": {"a": 1, "b": 1}
+  },
+  {
+    "comment": "add to object, numeric path",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "add", "path": "/0", "value": 1}
+    ],
+    "expected": {"a": 1, "0": 1}
+  },
+  {
+    "comment": "add to object, deep path",
+    "doc": {"a": [{"b": {}}]},
+    "patch": [
+      {"op": "add", "path": "/a/0/b/c", "value": 1}
+    ],
+    "expected": {"a": [{"b": {"c": 1}}]}
+  },
+  {
+    "comment": "add to object with empty path moves object",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "add", "path": "", "value": 1}
+    ],
+    "expected": 1
+  },
+  {
+    "comment": "add to start of array by index",
+    "doc": ["a"],
+    "patch": [
+      {"op": "add", "path": "/0", "value": 1}
+    ],
+    "expected": [1, "a"]
+  },
+  {
+    "comment": "add to end of array by index",
+    "doc": ["a"],
+    "patch": [
+      {"op": "add", "path": "/1", "value": 1}
+    ],
+    "expected": ["a", 1]
+  },
+  {
+    "comment": "add to end of array by hyphen",
+    "doc": ["a"],
+    "patch": [
+      {"op": "add", "path": "/-", "value": 1}
+    ],
+    "expected": ["a", 1]
+  },
+  {
+    "comment": "add to array, deep path",
+    "doc": [{"a": {"b": [0, 1, 2]}}],
+    "patch": [
+      {"op": "add", "path": "/0/a/b/2", "value": true}
+    ],
+    "expected": [{"a": {"b": [0, 1, true, 2]}}]
+  },
+  {
+    "comment": "add to array with empty path moves array",
+    "doc": ["a"],
+    "patch": [
+      {"op": "add", "path": "", "value": 1}
+    ],
+    "expected": 1
+  },
+  {
+    "comment": "fail: add to array, string path",
+    "doc": ["a"],
+    "patch": [
+      {"op": "add", "path": "/b", "value": 1}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+
+
+  {
+    "comment": "move in object, string path",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "move", "path": "/b", "from": "/a"}
+    ],
+    "expected": {"b": 1}
+  },
+  {
+    "comment": "move in object, numeric path",
+    "doc": {"0": 1},
+    "patch": [
+      {"op": "move", "path": "/a", "from": "/0"}
+    ],
+    "expected": {"a": 1}
+  },
+  {
+    "comment": "move in object, deep path",
+    "doc": {"a": [{"b": {"c": 4}}]},
+    "patch": [
+      {"op": "move", "from": "/a/0/b/c", "path": "/c"}
+    ],
+    "expected": {"a": [{"b": {}}], "c": 4}
+  },
+  {
+    "comment": "move in object with empty path replaces object",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "move", "from": "/a", "path": ""}
+    ],
+    "expected": 1
+  },
+  {
+    "comment": "fail: move in object, nonexistent path",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "move", "from": "/b", "path": "/c"}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+  {
+    "comment": "move start of array by index",
+    "doc": ["a", "b"],
+    "patch": [
+      {"op": "move", "from": "/0", "path": "/1"}
+    ],
+    "expected": ["b", "a"]
+  },
+  {
+    "comment": "move from end of array by index",
+    "doc": ["a", "b"],
+    "patch": [
+      {"op": "move", "from": "/1", "path": "/0"}
+    ],
+    "expected": ["b", "a"]
+  },
+  {
+    "comment": "move to end of array by hyphen",
+    "doc": ["a", "b", "c"],
+    "patch": [
+      {"op": "move", "from": "/0", "path": "/-"}
+    ],
+    "expected": ["b", "c", "a"]
+  },
+  {
+    "comment": "move from end of array by hyphen",
+    "doc": ["a", "b", "c"],
+    "patch": [
+      {"op": "move", "from": "/-", "path": "/0"}
+    ],
+    "expected": ["c", "a", "b"]
+  },
+  {
+    "comment": "move in array, deep path",
+    "doc": [{"a": {"b": [0, 1, 2]}}],
+    "patch": [
+      {"op": "move", "from": "/0/a/b/0", "path": "/0/a/b/2"}
+    ],
+    "expected": [{"a": {"b": [1, 2, 0]}}]
+  },
+  {
+    "comment": "move in array with empty path moves array",
+    "doc": ["a"],
+    "patch": [
+      {"op": "move", "from": "/0", "path": ""}
+    ],
+    "expected": "a"
+  },
+  {
+    "comment": "fail: move array, string path",
+    "doc": ["a"],
+    "patch": [
+      {"op": "move", "from": "/0", "path": "/b"}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+  {
+    "comment": "fail: move in array, index out of bounds",
+    "doc": ["a"],
+    "patch": [
+      {"op": "move", "from": "/1", "path": "/0"}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+
+
+  {
+    "comment": "copy in object, string path",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "copy", "path": "/b", "from": "/a"}
+    ],
+    "expected": {"a": 1, "b": 1}
+  },
+  {
+    "comment": "copy in object, numeric path",
+    "doc": {"0": 1},
+    "patch": [
+      {"op": "copy", "path": "/a", "from": "/0"}
+    ],
+    "expected": {"a": 1, "0": 1}
+  },
+  {
+    "comment": "copy in object, deep path",
+    "doc": {"a": [{"b": {"c": 4}}]},
+    "patch": [
+      {"op": "copy", "from": "/a/0/b/c", "path": "/c"}
+    ],
+    "expected": {"a": [{"b": {"c": 4}}], "c": 4}
+  },
+  {
+    "comment": "copy in object with empty path replaces object",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "copy", "from": "/a", "path": ""}
+    ],
+    "expected": 1
+  },
+  {
+    "comment": "fail: copy in object, nonexistent path",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "copy", "from": "/b", "path": "/c"}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+  {
+    "comment": "copy start of array by index",
+    "doc": ["a", "b"],
+    "patch": [
+      {"op": "copy", "from": "/0", "path": "/1"}
+    ],
+    "expected": ["a", "a", "b"]
+  },
+  {
+    "comment": "copy from end of array by index",
+    "doc": ["a", "b"],
+    "patch": [
+      {"op": "copy", "from": "/1", "path": "/0"}
+    ],
+    "expected": ["b", "a", "b"]
+  },
+  {
+    "comment": "copy to end of array by hyphen",
+    "doc": ["a", "b", "c"],
+    "patch": [
+      {"op": "copy", "from": "/0", "path": "/-"}
+    ],
+    "expected": ["a", "b", "c", "a"]
+  },
+  {
+    "comment": "copy from end of array by hyphen",
+    "doc": ["a", "b", "c"],
+    "patch": [
+      {"op": "copy", "from": "/-", "path": "/0"}
+    ],
+    "expected": ["c", "a", "b", "c"]
+  },
+  {
+    "comment": "copy in array, deep path",
+    "doc": [{"a": {"b": [0, 1, 2]}}],
+    "patch": [
+      {"op": "copy", "from": "/0/a/b/0", "path": "/0/a/b/2"}
+    ],
+    "expected": [{"a": {"b": [0, 1, 0, 2]}}]
+  },
+  {
+    "comment": "copy in array with empty path copys array",
+    "doc": ["a"],
+    "patch": [
+      {"op": "copy", "from": "/0", "path": ""}
+    ],
+    "expected": "a"
+  },
+  {
+    "comment": "fail: copy array, string path",
+    "doc": ["a"],
+    "patch": [
+      {"op": "copy", "from": "/0", "path": "/b"}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+  {
+    "comment": "fail: copy in array, index out of bounds",
+    "doc": ["a"],
+    "patch": [
+      {"op": "copy", "from": "/1", "path": "/0"}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+
+
+  {
+    "comment": "remove in object, string path",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "remove", "path": "/a"}
+    ],
+    "expected": {}
+  },
+  {
+    "comment": "remove in object, numeric path",
+    "doc": {"0": 1},
+    "patch": [
+      {"op": "remove", "path": "/0"}
+    ],
+    "expected": {}
+  },
+  {
+    "comment": "remove in object, deep path",
+    "doc": {"a": [{"b": {"c": 4}}]},
+    "patch": [
+      {"op": "remove", "path": "/a/0/b/c"}
+    ],
+    "expected": {"a": [{"b": {}}]}
+  },
+  {
+    "comment": "remove in object with empty path removes object",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "remove", "path": ""}
+    ],
+    "expected": null
+  },
+  {
+    "comment": "fail: remove in object, nonexistent path",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "remove", "path": "/c"}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+  {
+    "comment": "remove start of array by index",
+    "doc": ["a", "b"],
+    "patch": [
+      {"op": "remove", "path": "/0"}
+    ],
+    "expected": ["b"]
+  },
+  {
+    "comment": "remove end of array by index",
+    "doc": ["a", "b"],
+    "patch": [
+      {"op": "remove", "path": "/1"}
+    ],
+    "expected": ["a"]
+  },
+  {
+    "comment": "remove end of array by hyphen",
+    "doc": ["a", "b", "c"],
+    "patch": [
+      {"op": "remove", "path": "/-"}
+    ],
+    "expected": ["a", "b"]
+  },
+  {
+    "comment": "remove in array, deep path",
+    "doc": [{"a": {"b": [0, 1, 2]}}],
+    "patch": [
+      {"op": "remove", "path": "/0/a/b/0"}
+    ],
+    "expected": [{"a": {"b": [1, 2]}}]
+  },
+  {
+    "comment": "remove in array with empty path removes array",
+    "doc": ["a"],
+    "patch": [
+      {"op": "remove", "path": ""}
+    ],
+    "expected": null
+  },
+  {
+    "comment": "fail: remove array, string path",
+    "doc": ["a"],
+    "patch": [
+      {"op": "remove", "path": "/b"}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+  {
+    "comment": "fail: remove in array, index out of bounds",
+    "doc": ["a"],
+    "patch": [
+      {"op": "remove", "path": "/2"}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+
+
+  {
+    "comment": "test in object, string path",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "test", "path": "/a", "value": 1}
+    ],
+    "expected": {"a": 1}
+  },
+  {
+    "comment": "test in object, numeric path",
+    "doc": {"0": 1},
+    "patch": [
+      {"op": "test", "path": "/0", "value": 1}
+    ],
+    "expected": {"0": 1}
+  },
+  {
+    "comment": "test in object, deep path",
+    "doc": {"a": [{"b": {"c": 4}}]},
+    "patch": [
+      {"op": "test", "path": "/a/0/b/c", "value": 4}
+    ],
+    "expected": {"a": [{"b": {"c": 4}}]}
+  },
+  {
+    "comment": "test in object with empty path tests object",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "test", "path": "", "value": {"a": 1}}
+    ],
+    "expected": {"a": 1}
+  },
+  {
+    "comment": "fail: test in object, wrong value",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "test", "path": "/a", "value": 22}
+    ],
+    "error_type": "test_failed",
+    "error": ""
+  },
+  {
+    "comment": "fail: test in object, nonexistent path",
+    "doc": {"a": 1},
+    "patch": [
+      {"op": "test", "path": "/c", "value": 1}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+  {
+    "comment": "test start of array by index",
+    "doc": ["a", "b"],
+    "patch": [
+      {"op": "test", "path": "/0", "value": "a"}
+    ],
+    "expected": ["a", "b"]
+  },
+  {
+    "comment": "test end of array by index",
+    "doc": ["a", "b"],
+    "patch": [
+      {"op": "test", "path": "/1", "value": "b"}
+    ],
+    "expected": ["a", "b"]
+  },
+  {
+    "comment": "fail: test end of array by index, wrong value",
+    "doc": ["a", "b"],
+    "patch": [
+      {"op": "test", "path": "/1", "value": "x"}
+    ],
+    "error_type": "test_failed",
+    "error": ""
+  },
+  {
+    "comment": "test end of array by hyphen",
+    "doc": ["a", "b", "c"],
+    "patch": [
+      {"op": "test", "path": "/-", "value": "c"}
+    ],
+    "expected": ["a", "b", "c"]
+  },
+  {
+    "comment": "test in array, deep path",
+    "doc": [{"a": {"b": [0, 1, 2]}}],
+    "patch": [
+      {"op": "test", "path": "/0/a/b/0", "value": 0}
+    ],
+    "expected": [{"a": {"b": [0, 1, 2]}}]
+  },
+  {
+    "comment": "test in array with empty path tests array",
+    "doc": ["a"],
+    "patch": [
+      {"op": "test", "path": "", "value": ["a"]}
+    ],
+    "expected": ["a"]
+  },
+  {
+    "comment": "fail: test array, string path",
+    "doc": ["a"],
+    "patch": [
+      {"op": "test", "path": "/b", "value": "a"}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+  {
+    "comment": "fail: test in array, index out of bounds",
+    "doc": ["a"],
+    "patch": [
+      {"op": "test", "path": "/2", "value": "x"}
+    ],
+    "error_type": "path_error",
+    "error": ""
+  },
+
+
+  {
+    "comment": "long patch test",
+    "doc": {"a": 1, "b": {"c": [0, {"d": true, "~/": true}, false]}},
+    "patch": [
+      {"op": "add", "path": "/e", "value": 2},
+      {"op": "test", "path": "/e", "value": 2},
+      {"op": "copy", "from": "/e", "path": "/f"},
+      {"op": "test", "path": "/f", "value": 2},
+      {"op": "remove", "path": "/e"},
+      {"op": "move", "from": "/f", "path": "/b/c/1/f"},
+      {"op": "replace", "path": "/b/c/-", "value": null},
+      {"op": "test", "path": "/b/c/1/~0~1", "value": true}
+    ],
+    "expected": {
+      "a": 1,
+      "b": {
+        "c": [
+          0,
+          {
+            "d": true,
+            "~/": true,
+            "f": 2
+          },
+          null
+        ]
+      }
+    }
+  }
+]

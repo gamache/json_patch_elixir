@@ -7,11 +7,12 @@ defmodule JSONPatchTest do
     IO.puts("Skipping test suite.")
   else
     @test_suites [
-      "tests.json",
-      "spec_tests.json"
+      "local_test_suite.json",
+      "json-patch-tests/tests.json",
+      "json-patch-tests/spec_tests.json"
     ]
     for filename <- @test_suites do
-      with {:ok, text} <- "./test/json-patch-tests/#{filename}" |> File.read() do
+      with {:ok, text} <- "./test/#{filename}" |> File.read() do
         tests = text |> Jason.decode!()
 
         for {t, i} <- Enum.with_index(tests) do
@@ -23,7 +24,10 @@ defmodule JSONPatchTest do
                 :skipped
 
               tt["error"] ->
-                assert({:error, _, _} = JSONPatch.patch(tt["doc"], tt["patch"]))
+                assert({:error, type, desc} = JSONPatch.patch(tt["doc"], tt["patch"]))
+                if tt["error_type"] do
+                  assert(String.to_existing_atom(tt["error_type"]) == type, desc)
+                end
 
               tt["expected"] ->
                 assert({:ok, tt["expected"]} == JSONPatch.patch(tt["doc"], tt["patch"]))

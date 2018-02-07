@@ -59,6 +59,13 @@ defmodule JSONPatch.Path do
     end
   end
 
+  defp value_at_path(data, ["-" | rest]) when is_list(data) do
+    case Enum.count(data) do
+      0 -> {:error, :path_error, "can't use index '-' with empty array"}
+      c -> value_at_path(data, [c-1 | rest])
+    end
+  end
+
   defp value_at_path(data, [key | _rest]) when is_list(data) do
     {:error, :path_error, "can't index into array with string #{key}"}
   end
@@ -107,6 +114,13 @@ defmodule JSONPatch.Path do
         {:ok, value} -> {:ok, List.replace_at(data, key, value)}
         err -> err
       end
+    end
+  end
+
+  defp remove_at_path(data, ["-" | rest]) when is_list(data) do
+    case Enum.count(data) do
+      0 -> {:error, :path_error, "can't use index '-' with empty array"}
+      c -> remove_at_path(data, [c-1 | rest])
     end
   end
 
@@ -196,72 +210,6 @@ defmodule JSONPatch.Path do
   end
 
   defp add_at_path(data, _, _) do
-    {:error, :path_error, "can't index into value #{data}"}
-  end
-
-  @doc ~S"""
-  Attempts to replace the value at the given path.  Returns the updated
-  `{:ok, data}`, otherwise `{:error, reason}.
-
-  Examples:
-
-      iex> %{"a" => %{"b" => 1, "c" => 2}} |> JSONPatch.Path.replace_value_at_path("/a/b", 3)
-      {:ok, %{"a" => %{"b" => 3, "c" => 2}}}
-
-      iex> %{"a" => [1, 2, 3, 4]} |> JSONPatch.Path.replace_value_at_path("/a/2", "woot")
-      {:ok, %{"a" => [1, 2, "woot", 4]}}
-  """
-  @spec replace_value_at_path(JSONPatch.json_document(), String.t(), JSONPatch.json_encodable()) ::
-          JSONPatch.return_value()
-  def replace_value_at_path(data, path, value) do
-    replace_at_path(data, split_path(path), value)
-  end
-
-  @spec replace_at_path(JSONPatch.json_document(), [String.t()], JSONPatch.json_encodable()) ::
-          JSONPatch.return_value()
-  defp replace_at_path(_data, [], value), do: {:ok, value}
-
-  defp replace_at_path(data, [key | rest], value) when is_list(data) and is_number(key) do
-    cond do
-      key >= Enum.count(data) ->
-        {:error, :path_error, "out-of-bounds index #{key}"}
-
-      rest == [] ->
-        {:ok, List.replace_at(data, key, value)}
-
-      :else ->
-        with {:ok, v} <- replace_at_path(Enum.at(data, key), rest, value) do
-          {:ok, List.replace_at(data, key, v)}
-        else
-          err -> err
-        end
-    end
-  end
-
-  defp replace_at_path(data, [key | _rest], _value) when is_list(data) do
-    {:error, :path_error, "can't index into array with string #{key}"}
-  end
-
-  defp replace_at_path(%{} = data, [key | rest], value) do
-    keystr = to_string(key)
-
-    cond do
-      rest == [] ->
-        {:ok, Map.put(data, keystr, value)}
-
-      !Map.has_key?(data, keystr) ->
-        {:error, :path_error, "missing key #{keystr}"}
-
-      :else ->
-        with {:ok, v} <- replace_at_path(data[keystr], rest, value) do
-          {:ok, Map.put(data, keystr, v)}
-        else
-          err -> err
-        end
-    end
-  end
-
-  defp replace_at_path(data, _, _) do
     {:error, :path_error, "can't index into value #{data}"}
   end
 end

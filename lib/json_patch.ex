@@ -173,7 +173,11 @@ defmodule JSONPatch do
         {:error, :syntax_error, "missing `value`"}
 
       :else ->
-        Path.replace_value_at_path(doc, patch["path"], patch["value"])
+        with {:ok, data} <- Path.remove_value_at_path(doc, patch["path"]) do
+          Path.add_value_at_path(data, patch["path"], patch["value"])
+        else
+          err -> err
+        end
     end
   end
 
