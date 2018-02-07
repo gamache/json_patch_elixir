@@ -15,7 +15,10 @@ defmodule JSONPatch.Path do
       []
   """
   @spec split_path(String.t) :: [String.t | non_neg_integer]
+  def split_path(path)
+
   def split_path(""), do: []
+
   def split_path(path) do
     path
     |> String.replace_leading("/", "")
@@ -23,11 +26,12 @@ defmodule JSONPatch.Path do
     |> Enum.map(&convert_number/1)
   end
 
+
   ## Converts string-formatted integers back to integers.
   ## Returns other inputs unchanged.
   defp convert_number("0"), do: 0
 
-  ## ~ escape handling
+  ## ~ escape handling  -- TODO make sure this is correct
   defp convert_number("~" <> rest), do: "~#{String.to_integer(rest)}"
 
   defp convert_number(str) do
@@ -38,7 +42,6 @@ defmodule JSONPatch.Path do
       str
     end
   end
-
 
 
   @doc ~S"""
@@ -74,7 +77,6 @@ defmodule JSONPatch.Path do
   defp value_at_path(data, _) do
     {:error, :path_error, "can't index into value #{data}"}
   end
-
 
 
   @doc ~S"""
@@ -201,7 +203,6 @@ defmodule JSONPatch.Path do
   end
 
 
-
   @doc ~S"""
   Attempts to replace the value at the given path.  Returns the updated
   `{:ok, data}`, otherwise `{:error, reason}.
@@ -218,7 +219,6 @@ defmodule JSONPatch.Path do
   def replace_value_at_path(data, path, value) do
     replace_at_path(data, split_path(path), value)
   end
-
 
   @spec replace_at_path(JSONPatch.json_document, [String.t], JSONPatch.json_encodable) :: JSONPatch.return_value
   defp replace_at_path(_data, [], value), do: {:ok, value}
