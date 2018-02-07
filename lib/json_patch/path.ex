@@ -14,7 +14,7 @@ defmodule JSONPatch.Path do
       iex> JSONPatch.Path.split_path("")
       []
   """
-  @spec split_path(String.t) :: [String.t | non_neg_integer]
+  @spec split_path(String.t()) :: [String.t() | non_neg_integer]
   def split_path(path)
 
   def split_path(""), do: []
@@ -25,7 +25,6 @@ defmodule JSONPatch.Path do
     |> String.split("/")
     |> Enum.map(&convert_number/1)
   end
-
 
   ## Converts string-formatted integers back to integers.
   ## Returns other inputs unchanged.
@@ -43,17 +42,16 @@ defmodule JSONPatch.Path do
     end
   end
 
-
   @doc ~S"""
   Traverses `data` according to the given `path`, returning `{:ok, value}`
   if a value was found at that path, or `{:error, reason}` otherwise.
   """
-  @spec get_value_at_path(JSONPatch.json_document, String.t) :: JSONPatch.return_value
+  @spec get_value_at_path(JSONPatch.json_document(), String.t()) :: JSONPatch.return_value()
   def get_value_at_path(data, path) when is_binary(path) do
     value_at_path(data, split_path(path))
   end
 
-  @spec value_at_path(JSONPatch.json_document, [String.t]) :: JSONPatch.return_value
+  @spec value_at_path(JSONPatch.json_document(), [String.t()]) :: JSONPatch.return_value()
   defp value_at_path(data, []), do: {:ok, data}
 
   defp value_at_path(data, [key | rest]) when is_number(key) and is_list(data) do
@@ -67,7 +65,7 @@ defmodule JSONPatch.Path do
     {:error, :path_error, "can't index into array with string #{key}"}
   end
 
-  defp value_at_path(%{}=data, [key | rest]) do
+  defp value_at_path(%{} = data, [key | rest]) do
     case Map.get(data, to_string(key), :missing) do
       :missing -> {:error, :path_error, "missing key #{key}"}
       value -> value_at_path(value, rest)
@@ -77,7 +75,6 @@ defmodule JSONPatch.Path do
   defp value_at_path(data, _) do
     {:error, :path_error, "can't index into value #{data}"}
   end
-
 
   @doc ~S"""
   Attempts to remove the value at the given path.  Returns the updated
@@ -94,12 +91,13 @@ defmodule JSONPatch.Path do
       iex> %{"a" => [1, 2, %{"c" => 3}, 4]} |> JSONPatch.Path.remove_value_at_path("/a/2/c")
       {:ok, %{"a" => [1, 2, %{}, 4]}}
   """
-  @spec remove_value_at_path(JSONPatch.json_document, String.t) :: JSONPatch.return_value
+  @spec remove_value_at_path(JSONPatch.json_document(), String.t()) :: JSONPatch.return_value()
   def remove_value_at_path(data, path) do
     remove_at_path(data, split_path(path))
   end
 
-  @spec remove_at_path(JSONPatch.json_document, [String.t]) :: JSONPatch.return_value | {:ok, :removed}
+  @spec remove_at_path(JSONPatch.json_document(), [String.t()]) ::
+          JSONPatch.return_value() | {:ok, :removed}
   defp remove_at_path(_data, []), do: {:ok, :removed}
 
   defp remove_at_path(data, [key | rest]) when is_list(data) and is_number(key) do
@@ -118,8 +116,9 @@ defmodule JSONPatch.Path do
     {:error, :path_error, "can't index into array with string #{key}"}
   end
 
-  defp remove_at_path(%{}=data, [key | rest]) do
+  defp remove_at_path(%{} = data, [key | rest]) do
     keystr = to_string(key)
+
     if !Map.has_key?(data, keystr) do
       {:error, :path_error, "missing key #{keystr}"}
     else
@@ -135,7 +134,6 @@ defmodule JSONPatch.Path do
     {:error, :path_error, "can't index into value #{data}"}
   end
 
-
   @doc ~S"""
   Attempts to add the value at the given path.  Returns the updated
   `{:ok, data}`, otherwise `{:error, reason}.
@@ -148,12 +146,14 @@ defmodule JSONPatch.Path do
       iex> %{"a" => [1, 2, 3, 4]} |> JSONPatch.Path.add_value_at_path("/a/2", "woot")
       {:ok, %{"a" => [1, 2, "woot", 3, 4]}}
   """
-  @spec add_value_at_path(JSONPatch.json_document, String.t, JSONPatch.json_encodable) :: JSONPatch.return_value
+  @spec add_value_at_path(JSONPatch.json_document(), String.t(), JSONPatch.json_encodable()) ::
+          JSONPatch.return_value()
   def add_value_at_path(data, path, value) do
     add_at_path(data, split_path(path), value)
   end
 
-  @spec add_at_path(JSONPatch.json_document, [String.t], JSONPatch.json_encodable) :: JSONPatch.return_value
+  @spec add_at_path(JSONPatch.json_document(), [String.t()], JSONPatch.json_encodable()) ::
+          JSONPatch.return_value()
   defp add_at_path(_data, [], value), do: {:ok, value}
 
   defp add_at_path(data, [key | rest], value) when is_list(data) and is_number(key) do
@@ -165,8 +165,7 @@ defmodule JSONPatch.Path do
         {:ok, List.insert_at(data, key, value)}
 
       :else ->
-        with {:ok, v} <- add_at_path(Enum.at(data, key), rest, value)
-        do
+        with {:ok, v} <- add_at_path(Enum.at(data, key), rest, value) do
           {:ok, List.replace_at(data, key, v)}
         else
           err -> err
@@ -182,15 +181,15 @@ defmodule JSONPatch.Path do
     {:error, :path_error, "can't index into array with string #{key}"}
   end
 
-  defp add_at_path(%{}=data, [key | rest], value) do
+  defp add_at_path(%{} = data, [key | rest], value) do
     keystr = to_string(key)
+
     cond do
       rest == [] ->
         {:ok, Map.put(data, keystr, value)}
 
       :else ->
-        with {:ok, v} <- add_at_path(data[keystr], rest, value)
-        do
+        with {:ok, v} <- add_at_path(data[keystr], rest, value) do
           {:ok, Map.put(data, keystr, v)}
         else
           err -> err
@@ -201,7 +200,6 @@ defmodule JSONPatch.Path do
   defp add_at_path(data, _, _) do
     {:error, :path_error, "can't index into value #{data}"}
   end
-
 
   @doc ~S"""
   Attempts to replace the value at the given path.  Returns the updated
@@ -215,12 +213,14 @@ defmodule JSONPatch.Path do
       iex> %{"a" => [1, 2, 3, 4]} |> JSONPatch.Path.replace_value_at_path("/a/2", "woot")
       {:ok, %{"a" => [1, 2, "woot", 4]}}
   """
-  @spec replace_value_at_path(JSONPatch.json_document, String.t, JSONPatch.json_encodable) :: JSONPatch.return_value
+  @spec replace_value_at_path(JSONPatch.json_document(), String.t(), JSONPatch.json_encodable()) ::
+          JSONPatch.return_value()
   def replace_value_at_path(data, path, value) do
     replace_at_path(data, split_path(path), value)
   end
 
-  @spec replace_at_path(JSONPatch.json_document, [String.t], JSONPatch.json_encodable) :: JSONPatch.return_value
+  @spec replace_at_path(JSONPatch.json_document(), [String.t()], JSONPatch.json_encodable()) ::
+          JSONPatch.return_value()
   defp replace_at_path(_data, [], value), do: {:ok, value}
 
   defp replace_at_path(data, [key | rest], value) when is_list(data) and is_number(key) do
@@ -232,8 +232,7 @@ defmodule JSONPatch.Path do
         {:ok, List.replace_at(data, key, value)}
 
       :else ->
-        with {:ok, v} <- replace_at_path(Enum.at(data, key), rest, value)
-        do
+        with {:ok, v} <- replace_at_path(Enum.at(data, key), rest, value) do
           {:ok, List.replace_at(data, key, v)}
         else
           err -> err
@@ -245,8 +244,9 @@ defmodule JSONPatch.Path do
     {:error, :path_error, "can't index into array with string #{key}"}
   end
 
-  defp replace_at_path(%{}=data, [key | rest], value) do
+  defp replace_at_path(%{} = data, [key | rest], value) do
     keystr = to_string(key)
+
     cond do
       rest == [] ->
         {:ok, Map.put(data, keystr, value)}
@@ -255,8 +255,7 @@ defmodule JSONPatch.Path do
         {:error, :path_error, "missing key #{keystr}"}
 
       :else ->
-        with {:ok, v} <- replace_at_path(data[keystr], rest, value)
-        do
+        with {:ok, v} <- replace_at_path(data[keystr], rest, value) do
           {:ok, Map.put(data, keystr, v)}
         else
           err -> err

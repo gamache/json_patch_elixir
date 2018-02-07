@@ -19,11 +19,12 @@ defmodule JSONPatch.MixProject do
   end
 
   defp download_tests(_) do
-    {_, 0} = System.cmd("git", [
-      "clone",
-      "https://github.com/json-patch/json-patch-tests.git",
-      "test/json-patch-tests",
-    ])
+    {_, 0} =
+      System.cmd("git", [
+        "clone",
+        "https://github.com/json-patch/json-patch-tests.git",
+        "test/json-patch-tests"
+      ])
   end
 
   # Run "mix help compile.app" to learn about applications.
@@ -39,7 +40,7 @@ defmodule JSONPatch.MixProject do
       {:dialyxir, "~> 0.5", only: :dev},
       {:ex_spec, "~> 2.0", only: :test},
       {:ex_doc, "~> 0.18", only: :dev},
-      {:jason, "~> 1.0", only: :test},
+      {:jason, "~> 1.0", only: :test}
     ]
   end
 end

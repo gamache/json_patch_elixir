@@ -24,27 +24,28 @@ defmodule JSONPatch do
 
   @type json_document :: json_object | json_array
 
-  @type json_object :: %{String.t => json_encodable}
+  @type json_object :: %{String.t() => json_encodable}
 
   @type json_array :: [json_encodable]
 
   @type json_encodable ::
-    json_object |
-    json_array |
-    String.t |
-    number |
-    true | false | nil
+          json_object
+          | json_array
+          | String.t()
+          | number
+          | true
+          | false
+          | nil
 
   @type patches :: [patch]
 
   @type patch :: map
 
-  @type return_value :: {:ok, json_encodable} | {:error, error_type, String.t}
+  @type return_value :: {:ok, json_encodable} | {:error, error_type, String.t()}
 
   @type error_type :: :test_failed | :syntax_error | :path_error
 
   @type status_code :: non_neg_integer
-
 
   @doc ~S"""
   Applies JSON Patch (RFC 6902) patches to the given JSON document.
@@ -71,13 +72,12 @@ defmodule JSONPatch do
   defp patch(doc, [p | rest], i) do
     case apply_single_patch(doc, p) do
       {:ok, newdoc} ->
-        patch(newdoc, rest, i+1)
+        patch(newdoc, rest, i + 1)
 
       {:error, type, desc} ->
         {:error, type, "#{desc} (patches[#{i}], #{inspect(p)})"}
     end
   end
-
 
   @doc ~S"""
   Converts a `t:return_value/0` to an HTTP status code.
@@ -98,7 +98,6 @@ defmodule JSONPatch do
   def status_code({:error, type, _}) do
     error_type_to_status_code(type)
   end
-
 
   @doc ~S"""
   Converts an `t:error_type/0` into an HTTP status code.
@@ -124,7 +123,6 @@ defmodule JSONPatch do
     end
   end
 
-
   @spec apply_single_patch(json_document, patch) :: return_value
   defp apply_single_patch(doc, patch) do
     cond do
@@ -134,8 +132,7 @@ defmodule JSONPatch do
     end
   end
 
-
-  @spec apply_op(String.t, json_document, patch) :: return_value
+  @spec apply_op(String.t(), json_document, patch) :: return_value
   defp apply_op("test", doc, patch) do
     cond do
       !Map.has_key?(patch, "value") ->
@@ -149,7 +146,9 @@ defmodule JSONPatch do
             else
               {:error, :test_failed, "test failed"}
             end
-          err -> err
+
+          err ->
+            err
         end
     end
   end
@@ -185,8 +184,7 @@ defmodule JSONPatch do
 
       :else ->
         with {:ok, value} <- Path.get_value_at_path(doc, patch["from"]),
-             {:ok, data} <- Path.remove_value_at_path(doc, patch["from"])
-        do
+             {:ok, data} <- Path.remove_value_at_path(doc, patch["from"]) do
           Path.add_value_at_path(data, patch["path"], value)
         else
           err -> err
@@ -200,8 +198,7 @@ defmodule JSONPatch do
         {:error, :syntax_error, "missing `from`"}
 
       :else ->
-        with {:ok, value} <- Path.get_value_at_path(doc, patch["from"])
-        do
+        with {:ok, value} <- Path.get_value_at_path(doc, patch["from"]) do
           Path.add_value_at_path(doc, patch["path"], value)
         else
           err -> err
