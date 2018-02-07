@@ -1,7 +1,7 @@
 defmodule JSONPatch do
   @moduledoc ~S"""
-  JSONPatch is an implementation of the JSON Patch format,
-  described in RFC 6902.
+  JSONPatch is an Elixir implementation of the JSON Patch format,
+  described in [RFC 6902](http://tools.ietf.org/html/rfc6902).
 
   Examples:
 
@@ -39,9 +39,7 @@ defmodule JSONPatch do
 
   @type patch :: map
 
-  @type return_value :: {:ok, json_document} | error
-
-  @type error :: {:error, error_type, String.t}
+  @type return_value :: {:ok, json_encodable} | {:error, error_type, String.t}
 
   @type error_type :: :test_failed | :syntax_error | :path_error
 

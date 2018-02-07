@@ -97,7 +97,7 @@ defmodule JSONPatch.Path do
     remove_at_path(data, split_path(path))
   end
 
-  @spec remove_at_path(JSONPatch.json_document, [String.t]) :: JSONPatch.return_value
+  @spec remove_at_path(JSONPatch.json_document, [String.t]) :: JSONPatch.return_value | {:ok, :removed}
   defp remove_at_path(_data, []), do: {:ok, :removed}
 
   defp remove_at_path(data, [key | rest]) when is_list(data) and is_number(key) do

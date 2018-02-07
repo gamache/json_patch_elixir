@@ -1,6 +1,7 @@
 # JSONPatch
 
-An Elixir implementation of JSON Patch (RFC 6902).
+JSONPatch is an Elixir implementation of the JSON Patch format,
+described in [RFC 6902](http://tools.ietf.org/html/rfc6902).
 
 Examples:
 
@@ -31,6 +32,15 @@ Examples:
 
 ## Acknowledgements
 
-JSONPatch can be run against the freely available JSON Patch test suite,
-maintained here: https://github.com/json-patch/json-patch-test
+JSONPatch can be run against the freely available
+[JSON Patch test suite](https://github.com/json-patch/json-patch-test).
+
+Run `mix download-tests` to install these tests.
+
+
+## Authorship and License
+
+JSONPatch is copyright 2018, Pete Gamache.
+
+JSONPatch is released under the MIT License, available at LICENSE.txt.
 
