@@ -4,8 +4,8 @@ defmodule JSONPatch.MixProject do
   def project do
     [
       app: :json_patch,
-      version: "0.1.0",
-      elixir: "~> 1.5",
+      version: "0.5.0",
+      elixir: "~> 1.4",
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()

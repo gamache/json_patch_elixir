@@ -22,7 +22,7 @@ defmodule JSONPatchTest do
                 :skipped
 
               tt["error"] ->
-                assert({:error, _} = JSONPatch.patch(tt["doc"], tt["patch"]))
+                assert({:error, _, _} = JSONPatch.patch(tt["doc"], tt["patch"]))
 
               tt["expected"] ->
                 assert({:ok, tt["expected"]} == JSONPatch.patch(tt["doc"], tt["patch"]))
