@@ -25,7 +25,7 @@ Examples:
     # mix.exs
     def deps do
       [
-        {:json_patch, "~> 0.5.0"}
+        {:json_patch, "~> 0.8.0"}
       ]
     end
 
