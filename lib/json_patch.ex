@@ -3,7 +3,7 @@ defmodule JSONPatch do
   JSONPatch is an Elixir implementation of the JSON Patch format,
   described in [RFC 6902](http://tools.ietf.org/html/rfc6902).
 
-  Examples:
+  ## Examples
 
       iex> JSONPatch.patch(%{"a" => 1}, [
       ...>   %{"op" => "add", "path" => "/b", "value" => %{"c" => true}},
@@ -18,6 +18,16 @@ defmodule JSONPatch do
       ...>   %{"op" => "move", "from" => "/b/c", "path" => "/c"}
       ...> ])
       {:error, :test_failed, ~s|test failed (patches[1], %{"op" => "test", "path" => "/a", "value" => 1})|}
+
+  ## Installation
+
+      # mix.exs
+      def deps do
+        [
+          {:json_patch, "~> 0.8.0"}
+        ]
+      end
+
   """
 
   alias JSONPatch.Path
