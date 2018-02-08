@@ -4,11 +4,25 @@ defmodule JSONPatch.MixProject do
   def project do
     [
       app: :json_patch,
+      description: "An Elixir implementation of JSON Patch (RFC 6902)",
+      package: package(),
       version: "0.8.0",
       elixir: "~> 1.4",
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
       deps: deps()
+    ]
+  end
+
+  defp package do
+    [
+      files: ["lib", "mix.exs", "README.md"],
+      maintainers: ["pete gamache <pete@gamache.org>"],
+      licenses: ["MIT"],
+      links: %{
+        "GitHub" => "https://github.com/gamache/json_patch_elixir",
+        "Docs" => "https://hexdocs.pm/json_patch"
+      }
     ]
   end
 
