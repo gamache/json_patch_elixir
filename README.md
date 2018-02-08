@@ -3,7 +3,7 @@
 JSONPatch is an Elixir implementation of the JSON Patch format,
 described in [RFC 6902](http://tools.ietf.org/html/rfc6902).
 
-Examples:
+## Examples
 
     iex> JSONPatch.patch(%{"a" => 1}, [
     ...>   %{"op" => "add", "path" => "/b", "value" => %{"c" => true}},
