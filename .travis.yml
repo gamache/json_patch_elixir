@@ -3,4 +3,4 @@ elixir:
   - 1.4
   - 1.6
 script:
-  - mix coveralls.travis
+  - mix do download-tests, coveralls.travis
