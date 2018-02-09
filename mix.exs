@@ -10,6 +10,7 @@ defmodule JSONPatch.MixProject do
       elixir: "~> 1.4",
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
+      test_coverage: [tool: ExCoveralls],
       deps: deps()
     ]
   end
@@ -53,9 +54,10 @@ defmodule JSONPatch.MixProject do
   defp deps do
     [
       {:dialyxir, "~> 0.5", only: :dev},
-      {:ex_spec, "~> 2.0", only: :test},
       {:ex_doc, "~> 0.18", only: :dev},
-      {:jason, "~> 1.0", only: :test}
+      {:jason, "~> 1.0", only: :test},
+      {:ex_spec, "~> 2.0", only: :test},
+      {:excoveralls, "~> 0.8", only: :test},
     ]
   end
 end
