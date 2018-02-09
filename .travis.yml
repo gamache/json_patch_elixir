@@ -3,4 +3,5 @@ elixir:
   - 1.4
   - 1.6
 script:
-  - mix do download-tests, coveralls.travis
+  - mix download-tests
+  - MIX_ENV=test mix coveralls.travis
