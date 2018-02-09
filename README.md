@@ -1,5 +1,9 @@
 # JSONPatch
 
+[![Travis](https://img.shields.io/travis/gamache/json_patch.svg?style=flat-square)](https://travis-ci.org/gamache/json_patch)
+[![Hex.pm](https://img.shields.io/hexpm/v/json_patch.svg?style=flat-square)](https://hex.pm/packages/json_patch)
+[![Hex.pm](https://img.shields.io/hexpm/dt/json_patch.svg?style=flat-square)](https://hex.pm/packages/json_patch)
+
 JSONPatch is an Elixir implementation of the JSON Patch format,
 described in [RFC 6902](http://tools.ietf.org/html/rfc6902).
 
