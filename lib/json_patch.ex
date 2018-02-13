@@ -90,7 +90,13 @@ defmodule JSONPatch do
   end
 
   @doc ~S"""
-  Converts a `t:return_value/0` to an HTTP status code.
+  Converts a `t:return_value/0` or `t:error_type/0' to an HTTP status code.
+
+  The HTTP status codes emitted are:
+  * 200 OK (success)
+  * 400 Bad Request (the syntax of the patch was invalid)
+  * 409 Conflict (a `test` operation inside the patch did not succeed)
+  * 422 Unprocessble Entity (the patch refers to an invalid or nonexistent path)
 
   Example:
 
@@ -99,33 +105,15 @@ defmodule JSONPatch do
 
       iex> JSONPatch.patch(%{"a" => 1}, [%{"op" => "test", "path" => "/a", "value" => 22}]) |> JSONPatch.status_code
       409
-  """
-  @spec status_code(return_value) :: status_code
-  def status_code(return_value)
 
-  def status_code({:ok, _}), do: 200
-
-  def status_code({:error, type, _}) do
-    error_type_to_status_code(type)
-  end
-
-  @doc ~S"""
-  Converts an `t:error_type/0` into an HTTP status code.
-
-  Examples:
-
-      iex> JSONPatch.error_type_to_status_code(:test_failed)
-      409
-
-      iex> JSONPatch.error_type_to_status_code(:path_error)
+      iex> JSONPatch.status_code(:path_error)
       422
-
-      iex> JSONPatch.error_type_to_status_code(:syntax_error)
-      400
   """
-  @spec error_type_to_status_code(error_type) :: status_code
-  def error_type_to_status_code(error_type) do
-    case error_type do
+  @spec status_code(return_value | error_type) :: status_code
+  def status_code(value) do
+    case value do
+      {:error, type, _} -> status_code(type)
+      {:ok, _} -> 200
       :test_failed -> 409
       :path_error -> 422
       :syntax_error -> 400
